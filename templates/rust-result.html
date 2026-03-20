@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+{% block body %}
+<style>
+  html body {
+    background-image: url("{{ url_for('static', filename='images/bg.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;    
+  }
+</style>
+
+<title>DataFrame Info</title>
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    table, th, td {
+        border: 1px solid black;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+    }
+</style>
+</head>
+<body>
+    <h1>DataFrame Information</h1>
+    <h2>Head</h2>
+    <div>{{ head|safe }}</div>
+    
+    <h2>Shape</h2>
+    <div>{{ shape }}</div>
+
+    <h2>Describe</h2>
+    <div>{{ describe|safe }}</div>
+
+    <h2>Info</h2>
+    <div style="white-space: pre-wrap;">{{ info|safe }}</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'navbar.html' %}
+{% block body %}
+<style>
+  html body {
+    background-image: url("{{ url_for('static', filename='images/bg.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;    
+  }
+</style>
+
+<title>Exploratory Data Analysis</title>
+</head>
+<body>
+    <h1>Exploratory Data Analysis</h1>
+
+    <h2>Numerical Features Distribution</h2>
+    <img src="{{ numerical_dist_img }}" alt="Numerical Features Distribution">
+
+    <h2>Categorical Columns Count Plot</h2>
+    <img src="{{ categorical_counts_img }}" alt="Categorical Columns Count Plot">
+
+    <h2>Heatmap of Data</h2>
+    <img src="{{ heatmap_img }}" alt="Heatmap of Data">
+
+{% endblock %}

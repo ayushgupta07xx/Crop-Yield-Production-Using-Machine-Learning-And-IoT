@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Evaluation</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        html body {
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)),
+                url('https://images.unsplash.com/photo-1574943320219-553eb213f72d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            color: white;
+        }
+
+        .page-header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .page-header h1::before {
+            content: "🤖";
+            font-size: 2rem;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .model-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+        }
+
+        .model-title {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #4caf50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .random-forest .model-title::before {
+            content: "🌲";
+            font-size: 1.3rem;
+        }
+
+        .linear-regression .model-title::before {
+            content: "📈";
+            font-size: 1.3rem;
+        }
+
+        .xgboost .model-title::before {
+            content: "⚡";
+            font-size: 1.3rem;
+        }
+
+        .metric-section {
+            margin-bottom: 25px;
+        }
+
+        .metric-section h3 {
+            color: #4caf50;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .accuracy-section h3::before {
+            content: "🎯";
+            font-size: 1rem;
+        }
+
+        .mse-section h3::before {
+            content: "📊";
+            font-size: 1rem;
+        }
+
+        .metric-item {
+            background: #f8fff8;
+            padding: 12px 18px;
+            margin-bottom: 8px;
+            border-radius: 10px;
+            border-left: 4px solid #4caf50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .metric-item:hover {
+            background: #f1f8e9;
+            transform: translateX(5px);
+        }
+
+        .metric-label {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .best-model {
+            border: 2px solid #4caf50;
+            background: rgba(76, 175, 80, 0.05);
+        }
+
+        .best-model .model-title {
+            color: #2e7d32;
+        }
+
+        .best-model .model-title::after {
+            content: "👑";
+            margin-left: auto;
+            font-size: 1.2rem;
+        }
+
+        .comparison-summary {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .comparison-title {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .comparison-title::before {
+            content: "🏆";
+            font-size: 1.5rem;
+        }
+
+        .summary-text {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 10px;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .models-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .model-card {
+                padding: 20px;
+            }
+
+            .metric-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>Model Evaluation</h1>
+        </div>
+
+        <div class="models-grid">
+            <!-- Random Forest Regressor -->
+            <div class="model-card random-forest">
+                <h2 class="model-title">Random Forest Regressor</h2>
+                
+                <div class="metric-section accuracy-section">
+                    <h3>Accuracy (R²)</h3>
+                    <div class="metric-item">
+                        <span class="metric-label">Training R²</span>
+                        <span class="metric-value">{{ results.random_forest.train_r2 }}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Test R²</span>
+                        <span class="metric-value">{{ results.random_forest.test_r2 }}</span>
+                    </div>
+                </div>
+
+                <div class="metric-section mse-section">
+                    <h3>Mean Squared Error</h3>
+                    <div class="metric-item">
+                        <span class="metric-label">Training MSE</span>
+                        <span class="metric-value">{{ results.random_forest.train_mse }}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Test MSE</span>
+                        <span class="metric-value">{{ results.random_forest.test_mse }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Linear Regression -->
+            <div class="model-card linear-regression">
+                <h2 class="model-title">Linear Regression</h2>
+                
+                <div class="metric-section accuracy-section">
+                    <h3>Accuracy (R²)</h3>
+                    <div class="metric-item">
+                        <span class="metric-label">Training R²</span>
+                        <span class="metric-value">{{ results.linear_regression.train_r2 }}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Test R²</span>
+                        <span class="metric-value">{{ results.linear_regression.test_r2 }}</span>
+                    </div>
+                </div>
+
+                <div class="metric-section mse-section">
+                    <h3>Mean Squared Error</h3>
+                    <div class="metric-item">
+                        <span class="metric-label">Training MSE</span>
+                        <span class="metric-value">{{ results.linear_regression.train_mse }}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Test MSE</span>
+                        <span class="metric-value">{{ results.linear_regression.test_mse }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- XGBoost Regressor -->
+            <div class="model-card xgboost">
+                <h2 class="model-title">XGBoost Regressor</h2>
+                
+                <div class="metric-section accuracy-section">
+                    <h3>Accuracy (R²)</h3>
+                    <div class="metric-item">
+                        <span class="metric-label">Training R²</span>
+                        <span class="metric-value">{{ results.xgboost.train_r2 }}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Test R²</span>
+                        <span class="metric-value">{{ results.xgboost.test_r2 }}</span>
+                    </div>
+                </div>
+
+                <div class="metric-section mse-section">
+                    <h3>Mean Squared Error</h3>
+                    <div class="metric-item">
+                        <span class="metric-label">Training MSE</span>
+                        <span class="metric-value">{{ results.xgboost.train_mse }}</span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Test MSE</span>
+                        <span class="metric-value">{{ results.xgboost.test_mse }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-summary">
+            <h2 class="comparison-title">Model Performance Summary</h2>
+            <p class="summary-text">
+                Compare the R² scores and MSE values above to identify the best performing model for your crop yield predictions. 
+                Higher R² values and lower MSE values indicate better model performance.
+            </p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

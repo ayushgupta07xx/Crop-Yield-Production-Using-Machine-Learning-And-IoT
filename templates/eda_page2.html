@@ -1,0 +1,34 @@
+{% extends 'navbar.html' %}
+{% block body %}
+<style>
+  html body {
+    background-image: url("{{ url_for('static', filename='images/Gemini_Generated_Image_o08ddno08ddno08d.jpeg') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;    
+  }
+</style>
+
+<title>Exploratory Data Analysis</title>
+</head>
+<body>
+    <h1>Exploratory Data Analysis</h1>
+
+    <h2> Violin Plot</h2>
+    <img src="{{ numerical_dist_img }}" alt="Numerical Features Distribution">
+<br><br><br><br><br>
+    <h2>Scatter Plot </h2>
+    <img src="{{ categorical_counts_img }}" alt="Categorical Columns Count Plot">
+<br><br><br><br><br>
+    <h2>Scatter Plot </h2>
+    <img src="{{ heatmap_img }}" alt="Heatmap of Data">
+<br><br><br><br><br>
+    <h2>Line Plot </h2>
+    <img src="{{ heatmap_img2 }}" alt="Heatmap of Data">
+<br><br><br><br><br>
+    <h2>Line Plot </h2>
+    <img src="{{ heatmap_img3}}" alt="Heatmap of Data">
+    
+
+{% endblock %}
+

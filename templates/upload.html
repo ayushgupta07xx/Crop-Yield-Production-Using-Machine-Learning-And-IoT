@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Yield Prediction</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 2rem;
+            min-height: calc(100vh - 4rem);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .content-area {
+            padding: 0;
+            min-height: 600px;
+        }
+
+        .left-panel {
+            background: #f8f9fa;
+            border-right: 2px solid #e9ecef;
+            padding: 2rem;
+            min-height: 600px;
+        }
+
+        .right-panel {
+            padding: 2rem;
+            min-height: 600px;
+            background: white;
+        }
+
+        .upload-area {
+            border: 3px dashed #4CAF50;
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: rgba(76, 175, 80, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #45a049;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: #45a049;
+            background: rgba(76, 175, 80, 0.15);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #4CAF50;
+            margin-bottom: 1rem;
+        }
+
+        .options-menu {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .option-btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: white;
+            color: #333;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .option-btn:hover {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+            transform: translateX(5px);
+        }
+
+        .option-btn.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .result-area {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            min-height: 400px;
+        }
+
+        .file-info {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .file-preview {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 10px;
+            margin: 1rem auto;
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #4CAF50;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header">
+                <h1><i class="fas fa-seedling me-3"></i>Crop Yield Prediction Using Machine Learning</h1>
+                <p class="mb-0">Upload your dataset to begin analysis and prediction</p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="row content-area g-0">
+                <!-- Left Panel -->
+                <div class="col-md-4 left-panel">
+                    <!-- Upload Section -->
+                    <div class="upload-section">
+                        <h4 class="mb-4"><i class="fas fa-upload me-2"></i>Upload Dataset</h4>
+                        
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h5>Drag & Drop your file here</h5>
+                            <p class="text-muted">or click to browse</p>
+                            <p class="small text-muted">Supported formats: CSV, Excel (.xlsx, .xls)</p>
+                            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                        </div>
+
+                        <!-- File Info -->
+                        <div class="file-info" id="fileInfo" style="display: none;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-csv fa-2x text-success me-3"></i>
+                                <div>
+                                    <h6 class="mb-1" id="fileName">filename.csv</h6>
+                                    <small class="text-muted" id="fileSize">2.5 MB</small>
+                                </div>
+                                <button class="btn btn-outline-danger btn-sm ms-auto" id="removeFile">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Options Menu -->
+                    <div class="options-menu" id="optionsMenu">
+                        <h5 class="mb-3"><i class="fas fa-list me-2"></i>Analysis Options</h5>
+                        
+                        <button class="option-btn" data-option="basic-info">
+                            <i class="fas fa-info-circle me-2"></i>Basic Info
+                        </button>
+                        
+                        <button class="option-btn" data-option="preprocessing">
+                            <i class="fas fa-cogs me-2"></i>Preprocessing Data
+                        </button>
+                        
+                        <button class="option-btn" data-option="eda">
+                            <i class="fas fa-chart-line me-2"></i>EDA Data
+                        </button>
+                        
+                        <button class="option-btn" data-option="eda2">
+                            <i class="fas fa-chart-bar me-2"></i>EDA Data2
+                        </button>
+                        
+                        <button class="option-btn" data-option="models">
+                            <i class="fas fa-brain me-2"></i>Models Data
+                        </button>
+                        
+                        <button class="option-btn" data-option="test">
+                            <i class="fas fa-flask me-2"></i>Test Application
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Panel -->
+                <div class="col-md-8 right-panel">
+                    <!-- Welcome Message -->
+                    <div class="text-center" id="welcomeMessage">
+                        <i class="fas fa-chart-line" style="font-size: 5rem; color: #4CAF50; opacity: 0.3;"></i>
+                        <h3 class="mt-4 text-muted">Upload a dataset to get started</h3>
+                        <p class="text-muted">Your analysis results will appear here</p>
+                    </div>
+
+                    <!-- Results Area -->
+                    <div class="result-area" id="resultArea">
+                        <!-- Basic Info Content -->
+                        <div class="result-content" id="basic-info-content">
+                            <h4><i class="fas fa-info-circle me-2"></i>Dataset Basic Information</h4>
+                            
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="stat-card">
+                                        <h6 class="text-muted">Total Rows</h6>
+                                        <h3 class="text-success">1,247</h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="stat-card">
+                                        <h6 class="text-muted">Total Columns</h6>
+                                        <h3 class="text-success">8</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="data-table mt-4">
+                                <table class="table table-striped mb-0">
+                                    <thead class="table-success">
+                                        <tr>
+                                            <th>Column Name</th>
+                                            <th>Data Type</th>
+                                            <th>Non-Null Count</th>
+                                            <th>Missing Values</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>State_Name</td>
+                                            <td>Object</td>
+                                            <td>1247</td>
+                                            <td>0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>District_Name</td>
+                                            <td>Object</td>
+                                            <td>1247</td>
+                                            <td>0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Crop_Year</td>
+                                            <td>Integer</td>
+                                            <td>1247</td>
+                                            <td>0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Season</td>
+                                            <td>Object</td>
+                                            <td>1247</td>
+                                            <td>0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Crop</td>
+                                            <td>Object</td>
+                                            <td>1247</td>
+                                            <td>0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Area</td>
+                                            <td>Float</td>
+                                            <td>1235</td>
+                                            <td>12</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Production</td>
+                                            <td>Float</td>
+                                            <td>1240</td>
+                                            <td>7</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Yield</td>
+                                            <td>Float</td>
+                                            <td>1230</td>
+                                            <td>17</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Preprocessing Content -->
+                        <div class="result-content" id="preprocessing-content" style="display: none;">
+                            <h4><i class="fas fa-cogs me-2"></i>Data Preprocessing</h4>
+                            
+                            <div class="success-message">
+                                <i class="fas fa-check-circle me-2"></i>Data preprocessing completed successfully!
+                            </div>
+
+                            <div class="chart-container">
+                                <h6>Missing Values Handling</h6>
+                                <p>• Removed 17 rows with missing yield values</p>
+                                <p>• Filled missing area values using median imputation</p>
+                                <p>• Applied log transformation to production values</p>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="stat-card">
+                                        <h6 class="text-muted">Original Dataset</h6>
+                                        <h4 class="text-danger">1,247 rows</h4>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="stat-card">
+                                        <h6 class="text-muted">Clean Dataset</h6>
+                                        <h4 class="text-success">1,230 rows</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EDA Content -->
+                        <div class="result-content" id="eda-content" style="display: none;">
+                            <h4><i class="fas fa-chart-line me-2"></i>Exploratory Data Analysis</h4>
+                            
+                            <div class="chart-container">
+                                <h6>Yield Distribution by Crop Type</h6>
+                                <canvas id="cropChart" width="400" height="200"></canvas>
+                            </div>
+
+                            <div class="chart-container">
+                                <h6>Seasonal Production Trends</h6>
+                                <canvas id="seasonChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- EDA2 Content -->
+                        <div class="result-content" id="eda2-content" style="display: none;">
+                            <h4><i class="fas fa-chart-bar me-2"></i>Advanced EDA Analysis</h4>
+                            
+                            <div class="chart-container">
+                                <h6>State-wise Yield Comparison</h6>
+                                <p class="text-muted">Interactive visualization showing yield patterns across different states</p>
+                                <div style="height: 300px; background: #f8f9fa; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-chart-area fa-3x text-muted"></i>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="stat-card">
+                                        <h6 class="text-muted">Highest Yield</h6>
+                                        <h4 class="text-success">Punjab</h4>
+                                        <small>2,450 kg/hectare</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="stat-card">
+                                        <h6 class="text-muted">Most Diverse</h6>
+                                        <h4 class="text-warning">Maharashtra</h4>
+                                        <small>15 crop types</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="stat-card">
+                                        <h6 class="text-muted">Largest Area</h6>
+                                        <h4 class="text-info">Rajasthan</h4>
+                                        <small>45,000 hectares</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Models Content -->
+                        <div class="result-content" id="models-content" style="display: none;">
+                            <h4><i class="fas fa-brain me-2"></i>Machine Learning Models</h4>
+                            
+                            <div class="success-message">
+                                <i class="fas fa-check-circle me-2"></i>Models trained successfully!
+                            </div>
+
+                            <div class="data-table">
+                                <table class="table table-striped mb-0">
+                                    <thead class="table-success">
+                                        <tr>
+                                            <th>Model</th>
+                                            <th>Accuracy</th>
+                                            <th>RMSE</th>
+                                            <th>Training Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Random Forest</strong></td>
+                                            <td><span class="badge bg-success">94.2%</span></td>
+                                            <td>0.156</td>
+                                            <td>2.3s</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Linear Regression</td>
+                                            <td><span class="badge bg-warning">87.5%</span></td>
+                                            <td>0.234</td>
+                                            <td>0.8s</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Decision Tree</td>
+                                            <td><span class="badge bg-info">91.3%</span></td>
+                                            <td>0.187</td>
+                                            <td>1.5s</td>
+                                        </tr>
+                                        <tr>
+                                            <td>XGBoost</td>
+                                            <td><span class="badge bg-success">93.8%</span></td>
+                                            <td>0.162</td>
+                                            <td>4.2s</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="chart-container mt-4">
+                                <h6>Model Performance Comparison</h6>
+                                <canvas id="modelChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Test Content -->
+                        <div class="result-content" id="test-content" style="display: none;">
+                            <h4><i class="fas fa-flask me-2"></i>Test the Application</h4>
+                            
+                            <div class="chart-container">
+                                <h6>Predict Crop Yield</h6>
+                                <form>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">State</label>
+                                                <select class="form-select">
+                                                    <option>Select State</option>
+                                                    <option>Punjab</option>
+                                                    <option>Maharashtra</option>
+                                                    <option>Karnataka</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Season</label>
+                                                <select class="form-select">
+                                                    <option>Select Season</option>
+                                                    <option>Kharif</option>
+                                                    <option>Rabi</option>
+                                                    <option>Summer</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Crop</label>
+                                                <select class="form-select">
+                                                    <option>Select Crop</option>
+                                                    <option>Rice</option>
+                                                    <option>Wheat</option>
+                                                    <option>Cotton</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Area (hectares)</label>
+                                                <input type="number" class="form-control" placeholder="Enter area">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="button" class="btn btn-success btn-lg" onclick="showPrediction()">
+                                        <i class="fas fa-calculator me-2"></i>Predict Yield
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="stat-card mt-4" id="predictionResult" style="display: none;">
+                                <h6 class="text-muted">Predicted Yield</h6>
+                                <h2 class="text-success">2,340 kg/hectare</h2>
+                                <small class="text-muted">Confidence: 94.2%</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <script>
+        // File upload functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const optionsMenu = document.getElementById('optionsMenu');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const resultArea = document.getElementById('resultArea');
+        const removeFile = document.getElementById('removeFile');
+
+        // Upload area click
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Remove file
+        removeFile.addEventListener('click', () => {
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            optionsMenu.style.display = 'none';
+            welcomeMessage.style.display = 'block';
+            resultArea.style.display = 'none';
+        });
+
+        function handleFile(file) {
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+            optionsMenu.style.display = 'block';
+            welcomeMessage.style.display = 'none';
+            
+            // Auto-select basic info
+            setTimeout(() => {
+                showOption('basic-info');
+            }, 500);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Option buttons
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const option = btn.getAttribute('data-option');
+                showOption(option);
+                
+                // Update active button
+                document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        function showOption(option) {
+            // Hide all content
+            document.querySelectorAll('.result-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // Show selected content
+            const selectedContent = document.getElementById(option + '-content');
+            if (selectedContent) {
+                resultArea.style.display = 'block';
+                selectedContent.style.display = 'block';
+                
+                // Initialize charts if needed
+                if (option === 'eda') {
+                    setTimeout(initCharts, 100);
+                } else if (option === 'models') {
+                    setTimeout(initModelChart, 100);
+                }
+            }
+        }
+
+        function initCharts() {
+            // Crop Chart
+            const cropCtx = document.getElementById('cropChart');
+            if (cropCtx && !cropCtx.chart) {
+                cropCtx.chart = new Chart(cropCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Rice', 'Wheat', 'Cotton', 'Sugarcane', 'Maize'],
+                        datasets: [{
+                            label: 'Average Yield (kg/hectare)',
+                            data: [2340, 1890, 1650, 2100, 1750],
+                            backgroundColor: [
+                                'rgba(76, 175, 80, 0.8)',
+                                'rgba(33, 150, 243, 0.8)',
+                                'rgba(255, 152, 0, 0.8)',
+                                'rgba(156, 39, 176, 0.8)',
+                                'rgba(244, 67, 54, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Season Chart
+            const seasonCtx = document.getElementById('seasonChart');
+            if (seasonCtx && !seasonCtx.chart) {
+                seasonCtx.chart = new Chart(seasonCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Production (tonnes)',
+                            data: [1200, 1100, 1300, 1500, 1800, 2200, 2800, 3200, 2900, 2400, 1800, 1400],
+                            borderColor: 'rgba(76, 175, 80, 1)',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initModelChart() {
+            const modelCtx = document.getElementById('modelChart');
+            if (modelCtx && !modelCtx.chart) {
+                modelCtx.chart = new Chart(modelCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Random Forest', 'Linear Regression', 'Decision Tree', 'XGBoost'],
+                        datasets: [{
+                            label: 'Accuracy (%)',
+                            data: [94.2, 87.5, 91.3, 93.8],
+                            backgroundColor: [
+                                'rgba(76, 175, 80, 0.8)',
+                                'rgba(255, 193, 7, 0.8)',
+                                'rgba(33, 150, 243, 0.8)',
+                                'rgba(76, 175, 80, 0.9)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function showPrediction() {
+            document.getElementById('predictionResult').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

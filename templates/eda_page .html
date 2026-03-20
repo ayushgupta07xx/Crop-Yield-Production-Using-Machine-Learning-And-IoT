@@ -1,0 +1,68 @@
+{% extends 'navbar.html' %}
+{% block body %}
+<style>
+  html body {
+    background-image: url("{{ url_for('static', filename='images/bg.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;    
+  }
+</style>
+
+<title>Exploratory Data Analysis</title>
+</head>
+<body>
+    <h1>Exploratory Data Analysis</h1>
+
+    <h2>Numerical Features Distribution</h2>
+    <img src="{{ numerical_dist_img }}" alt="Numerical Features Distribution">
+
+    <h2>Categorical Columns Count Plot</h2>
+    <img src="{{ categorical_counts_img }}" alt="Categorical Columns Count Plot">
+
+    <h2>Heatmap of Data</h2>
+    <img src="{{ heatmap_img }}" alt="Heatmap of Data">
+
+    <h2>Violin Plot - Red Blood Cell Count</h2>
+    {{ violin_plot|safe }}
+
+    <h2>KDE Plot - Red Blood Cell Count</h2>
+    <img src="data:image/png;base64,{{ kde_plot|b64encode }}" alt="KDE Plot - Red Blood Cell Count">
+
+    <h2>Scatter Plot - Haemoglobin vs Packed Cell Volume</h2>
+    {{ scatter_plot1|safe }}
+
+    <h2>Scatter Plot - Red Blood Cell Count vs Packed Cell Volume</h2>
+    {{ scatter_plot2|safe }}
+
+    <h2>Scatter Plot - Red Blood Cell Count vs Albumin</h2>
+    {{ scatter_plot3|safe }}
+
+    <h2>Scatter Plot - Sugar vs Blood Glucose Random</h2>
+    {{ scatter_plot4|safe }}
+
+    <h2>Bar Plot - Specific Gravity vs Packed Cell Volume</h2>
+    {{ bar_plot|safe }}
+
+
+
+    <h1>Generated Plots</h1>
+
+    <h2>Violin Plots</h2>
+    <img src="{{ url_for('static', filename='images/violin_red_blood_cell_count.png') }}" alt="Violin Plot Red Blood Cell Count">
+    <!-- Add more images for other violin plots -->
+
+    <h2>KDE Plots</h2>
+    <img src="{{ url_for('static', filename='images/kde_red_blood_cell_count.png') }}" alt="KDE Plot Red Blood Cell Count">
+    <!-- Add more images for other KDE plots -->
+
+    <h2>Scatter Plots</h2>
+    <img src="{{ url_for('static', filename='images/scatter_haemoglobin_packed_cell_volume.png') }}" alt="Scatter Plot Haemoglobin vs Packed Cell Volume">
+    <!-- Add more images for other scatter plots -->
+
+    <h2>Bar Plot</h2>
+    <img src="{{ url_for('static', filename='images/bar_specific_gravity_packed_cell_volume.png') }}" alt="Bar Plot Specific Gravity vs Packed Cell Volume">
+
+
+{% endblock %}
+

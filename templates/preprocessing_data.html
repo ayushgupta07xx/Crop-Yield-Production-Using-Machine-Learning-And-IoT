@@ -1,0 +1,113 @@
+{% extends 'layout.html' %}
+{% block body %}
+<style>
+  html body {
+    background-image: url("{{ url_for('static', filename='images/bg.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;    
+  }
+</style>
+
+<title>Data Preprocessing</title>
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    table, th, td {
+        border: 1px solid black;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+    }
+</style>
+</head>
+<body>
+    <h1>Data Preprocessing</h1>
+
+    <h2>Numerical Columns - Null Values Before</h2>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Column</th>
+                    <th>Null Values</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for col, val in num_nulls_before.items() %}
+                <tr>
+                    <td>{{ col }}</td>
+                    <td>{{ val }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Categorical Columns - Null Values Before</h2>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Column</th>
+                    <th>Null Values</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for col, val in cat_nulls_before.items() %}
+                <tr>
+                    <td>{{ col }}</td>
+                    <td>{{ val }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Numerical Columns - Null Values After</h2>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Column</th>
+                    <th>Null Values</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for col, val in num_nulls_after.items() %}
+                <tr>
+                    <td>{{ col }}</td>
+                    <td>{{ val }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Categorical Columns - Null Values After</h2>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Column</th>
+                    <th>Null Values</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for col, val in cat_nulls_after.items() %}
+                <tr>
+                    <td>{{ col }}</td>
+                    <td>{{ val }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h2>Head of DataFrame After Preprocessing</h2> 
+    <div>{{ head|safe }}</div>
+
+{% endblock %}
